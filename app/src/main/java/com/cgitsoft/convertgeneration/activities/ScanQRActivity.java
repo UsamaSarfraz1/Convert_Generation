@@ -14,6 +14,7 @@ import com.cgitsoft.convertgeneration.R;
 import com.cgitsoft.convertgeneration.models.GeoLocationAttendance;
 import com.cgitsoft.convertgeneration.models.MarkAttendanceResponse;
 import com.cgitsoft.convertgeneration.models.SharedPref;
+import com.cgitsoft.convertgeneration.models.Utills;
 import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
 import com.cgitsoft.convertgeneration.retrofit.RetrofitService;
@@ -22,6 +23,7 @@ import com.google.android.gms.vision.barcode.Barcode;
 import java.util.List;
 
 import info.androidhive.barcode.BarcodeReader;
+import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,6 +42,7 @@ public class ScanQRActivity extends AppCompatActivity implements BarcodeReader.B
 
         title = findViewById(R.id.title);
 
+        Utills.checkConnection(this,title);
         if(!Utils.isAdmin(this)){
             lat = getIntent().getStringExtra("lat");
             lng = getIntent().getStringExtra("lng");
@@ -158,5 +161,11 @@ public class ScanQRActivity extends AppCompatActivity implements BarcodeReader.B
                     .setMessage(t.getMessage())
                     .setPositiveButton("OK",((dialog, which) -> finish())).show();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Utills.checkConnection(this,title);
     }
 }

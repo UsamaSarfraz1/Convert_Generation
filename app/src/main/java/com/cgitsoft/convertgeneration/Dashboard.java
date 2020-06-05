@@ -10,6 +10,7 @@ import com.cgitsoft.convertgeneration.activities.ResetPasswordActivity;
 import com.cgitsoft.convertgeneration.dialogs.LogoutDialog;
 import com.cgitsoft.convertgeneration.models.AttendanceDetail;
 import com.cgitsoft.convertgeneration.models.SharedPref;
+import com.cgitsoft.convertgeneration.models.Utills;
 import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.models.login.LoginResponse;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
@@ -44,17 +45,25 @@ import retrofit2.Response;
 
 public class Dashboard extends AppCompatActivity {
 
+    DrawerLayout drawer;
     private AppBarConfiguration mAppBarConfiguration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
+
         NavigationView navigationView = findViewById(R.id.nav_view);
+
+        //check internet connectivity
+        Utills.checkConnection(this,drawer);
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
@@ -64,6 +73,8 @@ public class Dashboard extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+
         }
 
 
@@ -100,5 +111,12 @@ public class Dashboard extends AppCompatActivity {
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Utills.checkConnection(Dashboard.this,drawer);
+
     }
 }

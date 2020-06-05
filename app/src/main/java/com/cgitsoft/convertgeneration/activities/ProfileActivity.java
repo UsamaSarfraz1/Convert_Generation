@@ -67,6 +67,8 @@ public class ProfileActivity extends AppCompatActivity {
         updateBtn=findViewById(R.id.updateBtn);
         profilePic=findViewById(R.id.profileImage);
 
+        Utills.checkConnection(this,name);
+
         userName.setEnabled(false);
         name.setEnabled(false);
         email.setEnabled(false);
@@ -166,7 +168,9 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Utills.checkConnection(this,name);
+    }
 }

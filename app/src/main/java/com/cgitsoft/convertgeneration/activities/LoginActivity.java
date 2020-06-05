@@ -8,9 +8,13 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +25,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cgitsoft.convertgeneration.Dashboard;
 import com.cgitsoft.convertgeneration.R;
@@ -32,6 +37,8 @@ import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.models.login.LoginResponse;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
 import com.cgitsoft.convertgeneration.retrofit.RetrofitService;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.wang.avi.AVLoadingIndicatorView;
 
@@ -75,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
         progressBar =findViewById(R.id.progressBar);
         progressBar.hide();
         TextView btnLogin = findViewById(R.id.btn_login);
-
+        Utills.checkConnection(this,errorMessage);
         btnLogin.setOnClickListener(login -> checkPermission());
     }
 
@@ -207,7 +214,5 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
-    public void checkConnection(){
-        ConnectivityManager connectivityManager= (ConnectivityManager) getApplicationContext().getSystemService(CONNECTIVITY_SERVICE);
-    }
+
 }
