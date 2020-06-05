@@ -24,6 +24,7 @@ import com.cgitsoft.convertgeneration.dialogs.FormatSelectorDialogFragment;
 import com.cgitsoft.convertgeneration.models.GeoLocationAttendance;
 import com.cgitsoft.convertgeneration.models.MarkAttendanceResponse;
 import com.cgitsoft.convertgeneration.models.SharedPref;
+import com.cgitsoft.convertgeneration.models.Utills;
 import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
 import com.cgitsoft.convertgeneration.retrofit.RetrofitService;
@@ -64,6 +65,7 @@ public class QrActivity extends BaseScannerActivity implements
     private ArrayList<Integer> mSelectedIndices;
     private int mCameraId = -1;
     private String lat,lng;
+    ViewGroup contentFrame;
     Ringtone r;
     private AVLoadingIndicatorView progressBar;
 
@@ -101,10 +103,12 @@ public class QrActivity extends BaseScannerActivity implements
 
         setupToolbar();
 
-        ViewGroup contentFrame = (ViewGroup) findViewById(R.id.content_frame);
+        contentFrame = (ViewGroup) findViewById(R.id.content_frame);
         mScannerView = new ZXingScannerView(this);
         setupFormats();
         contentFrame.addView(mScannerView);
+
+        Utills.checkConnection(this,contentFrame);
     }
 
     @Override
@@ -114,6 +118,8 @@ public class QrActivity extends BaseScannerActivity implements
         mScannerView.startCamera(mCameraId);
         mScannerView.setFlash(mFlash);
         mScannerView.setAutoFocus(mAutoFocus);
+
+        Utills.checkConnection(this,contentFrame);
     }
 
     @Override

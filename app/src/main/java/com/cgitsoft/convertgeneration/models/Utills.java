@@ -5,17 +5,24 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Point;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.cgitsoft.convertgeneration.models.login.UserDetail;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -73,5 +80,25 @@ public class Utills {
         // Set the width of the dialog proportional to 90% of the screen width
         window.setLayout((int) (size.x * width), WindowManager.LayoutParams.WRAP_CONTENT);
         window.setGravity(Gravity.CENTER);
+    }
+
+    public static void checkConnection(Context context, View view){
+        final ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkRequest.Builder builder=new NetworkRequest.Builder();
+        if (connectivityManager!=null){
+            connectivityManager.registerNetworkCallback(builder.build(),new ConnectivityManager.NetworkCallback(){
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    super.onAvailable(network);
+                    Snackbar.make(view,"Wifi Enabled", BaseTransientBottomBar.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onLost(@NonNull Network network) {
+                    super.onLost(network);
+                    Snackbar.make(view,"Internet Not Connected", BaseTransientBottomBar.LENGTH_INDEFINITE).show();
+                }
+            });
+        }
     }
 }

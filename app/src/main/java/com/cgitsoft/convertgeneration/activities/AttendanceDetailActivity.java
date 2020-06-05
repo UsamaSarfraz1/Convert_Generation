@@ -23,6 +23,7 @@ import com.cgitsoft.convertgeneration.AttendanceModel.Root;
 import com.cgitsoft.convertgeneration.Dashboard;
 import com.cgitsoft.convertgeneration.R;
 import com.cgitsoft.convertgeneration.adapters.AttendanceAdapter;
+import com.cgitsoft.convertgeneration.models.Utills;
 import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.models.attendance.AttendanceDetail;
 import com.cgitsoft.convertgeneration.models.attendance.AttendanceResponse;
@@ -70,6 +71,8 @@ public class AttendanceDetailActivity extends AppCompatActivity {
         Button btnFilter = findViewById(R.id.btn_filterResult);
         btnBack.setOnClickListener(back -> finish());
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
+
+        Utills.checkConnection(this,txtFrom);
 
         User_Id= Utils.getSharedPref(this).getId();
 
@@ -216,5 +219,11 @@ public class AttendanceDetailActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Utills.checkConnection(this,txtFrom);
     }
 }

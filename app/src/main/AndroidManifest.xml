@@ -24,12 +24,13 @@
         <activity android:name=".activities.QrActivity"
             android:theme="@style/AppTheme1"></activity>
         <activity android:name=".activities.ResetPasswordActivity" />
-        <activity android:name=".activities.ProfileActivity" />
+        <activity android:name=".activities.ProfileActivity" android:windowSoftInputMode="adjustPan" />
         <activity android:name=".activities.ScanQRActivity" />
         <activity android:name=".activities.AttendanceDetailActivity" />
         <activity
             android:name=".Dashboard"
             android:label="@string/title_activity_dashboard"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.LoginActivity"
