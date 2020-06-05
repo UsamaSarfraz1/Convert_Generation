@@ -10,9 +10,11 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -27,8 +29,13 @@ import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
 import com.cgitsoft.convertgeneration.retrofit.RetrofitService;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
+import com.wang.avi.AVLoadingIndicatorView;
 
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -58,6 +65,7 @@ public class QrActivity extends BaseScannerActivity implements
     private int mCameraId = -1;
     private String lat,lng;
     Ringtone r;
+    private AVLoadingIndicatorView progressBar;
 
 
     @Override
@@ -67,6 +75,7 @@ public class QrActivity extends BaseScannerActivity implements
 
 
 
+        progressBar = findViewById(R.id.progressBar);
 
         if(state != null) {
             mFlash = state.getBoolean(FLASH_STATE, false);
@@ -140,6 +149,26 @@ public class QrActivity extends BaseScannerActivity implements
     public void handleResult(Result rawResult) {
 
         try {
+            progressBar.setVisibility(View.VISIBLE);
+            mScannerView.stopCamera();
+//            String[] data=rawResult.getText().split("\\|");
+//            String dateBase64=data[1];
+//
+//            byte[] dataa = Base64.decode(dateBase64, Base64.DEFAULT);
+//            String Date = new String(dataa, StandardCharsets.UTF_8);
+//
+//            java.util.Date c = Calendar.getInstance().getTime();
+//            System.out.println("Current time => " + c);
+//
+//            SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+//
+//            String formattedDate = df.format(c);
+//            if (Date.equals(formattedDate)){
+//                Toast.makeText(this, "matched", Toast.LENGTH_SHORT).show();
+//            }
+//            Log.i("Current Time == ", formattedDate);
+
+
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             r = RingtoneManager.getRingtone(getApplicationContext(), notification);
             Log.d(TAG, rawResult.getText());
@@ -152,6 +181,7 @@ public class QrActivity extends BaseScannerActivity implements
                 if(s.equals("cgit")){
                     api.geoLocationAttendance(sharedPref.getId(),lat,lng).enqueue(new QrActivity.geoApiResponse());
                 }else {
+                    progressBar.setVisibility(View.GONE);
                     r.play();
                     new AlertDialog.Builder(QrActivity.this)
                             .setTitle("Wrong QR Code")
@@ -281,6 +311,7 @@ public class QrActivity extends BaseScannerActivity implements
         @Override
         public void onResponse(@NonNull Call<MarkAttendanceResponse> call, Response<MarkAttendanceResponse> response) {
             if(response.isSuccessful()){
+                progressBar.setVisibility(View.GONE);
                 r.play();
                 MarkAttendanceResponse attendanceResponse = response.body();
                 if(attendanceResponse != null){
@@ -294,6 +325,7 @@ public class QrActivity extends BaseScannerActivity implements
 
         @Override
         public void onFailure(@NonNull Call<MarkAttendanceResponse> call, Throwable t) {
+            progressBar.setVisibility(View.GONE);
             r.play();
             new AlertDialog.Builder(QrActivity.this)
                     .setTitle("Response")
@@ -306,6 +338,7 @@ public class QrActivity extends BaseScannerActivity implements
         @Override
         public void onResponse(Call<GeoLocationAttendance> call, Response<GeoLocationAttendance> response) {
             if(response.isSuccessful()){
+                progressBar.setVisibility(View.GONE);
                 r.play();
                 GeoLocationAttendance attendanceResponse = response.body();
                 if(attendanceResponse != null){
@@ -314,12 +347,14 @@ public class QrActivity extends BaseScannerActivity implements
                             .setMessage(attendanceResponse.getMessage())
                             .setPositiveButton("OK",((dialog, which) -> finish())).show();
                 }else {
+                    progressBar.setVisibility(View.GONE);
                     new AlertDialog.Builder(QrActivity.this)
                             .setTitle("Response")
                             .setMessage("Empty Response")
                             .setPositiveButton("OK",((dialog, which) -> finish())).show();
                 }
             }else {
+                progressBar.setVisibility(View.GONE);
                 new AlertDialog.Builder(QrActivity.this)
                         .setTitle("Response")
                         .setMessage("Response failed")
@@ -329,6 +364,7 @@ public class QrActivity extends BaseScannerActivity implements
 
         @Override
         public void onFailure(Call<GeoLocationAttendance> call, Throwable t) {
+            progressBar.setVisibility(View.GONE);
             r.play();
             new AlertDialog.Builder(QrActivity.this)
                     .setTitle("Response")

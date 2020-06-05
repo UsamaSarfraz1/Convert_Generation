@@ -8,9 +8,12 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +24,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cgitsoft.convertgeneration.Dashboard;
 import com.cgitsoft.convertgeneration.R;
@@ -32,6 +36,7 @@ import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.models.login.LoginResponse;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
 import com.cgitsoft.convertgeneration.retrofit.RetrofitService;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.wang.avi.AVLoadingIndicatorView;
 
@@ -52,6 +57,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView errorMessage;
     private AVLoadingIndicatorView progressBar;
     private static DialogListener listener;
+    TextView btnLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +68,30 @@ public class LoginActivity extends AppCompatActivity {
 
         // making toolbar transparent
         transparentToolbar();
-
         init();
+
+//        final ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//
+//        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+//        if (connectivityManager != null) {
+//            connectivityManager.registerNetworkCallback(builder.build(),
+//                    new ConnectivityManager.NetworkCallback() {
+//                        @Override
+//                        public void onAvailable(@NonNull Network network) {
+//                            super.onAvailable(network);
+//                            Toast.makeText(LoginActivity.this, "Connection Available", Toast.LENGTH_SHORT).show();
+//                        }
+//
+//                        @Override
+//                        public void onLost(@NonNull Network network) {
+//                            super.onLost(network);
+//                            Toast.makeText(LoginActivity.this, "Connection Lost", Toast.LENGTH_SHORT).show();
+//                        }
+//
+//                    });
+//        }
+
+
         //TextView btnLogin = findViewById(R.id.btn_login);
         //btnLogin.setOnClickListener(login -> checkPermission());
     }
@@ -74,7 +102,9 @@ public class LoginActivity extends AppCompatActivity {
         errorMessage = findViewById(R.id.errorMessage);
         progressBar =findViewById(R.id.progressBar);
         progressBar.hide();
-        TextView btnLogin = findViewById(R.id.btn_login);
+        btnLogin = findViewById(R.id.btn_login);
+
+
 
         btnLogin.setOnClickListener(login -> checkPermission());
     }
@@ -101,6 +131,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser(String email, String password) {
+        btnLogin.setEnabled(false);
         progressBar.show();
         CGITAPIs api = RetrofitService.createService(CGITAPIs.class);
         api.getStudentResponse(email,password).enqueue(new Callback<LoginResponse>() {
@@ -115,17 +146,19 @@ public class LoginActivity extends AppCompatActivity {
                         if(loginResponse.getUser_role()[0].equals("administrator")){
                             Utils.setIsAdmin(LoginActivity.this,true);
                             Utils.openActivity(LoginActivity.this,Dashboard.class);
-                            finish();
+                            finishAffinity();
                         }else if(loginResponse.getUser_role()[0].equals("employee")){
                             Utils.setIsAdmin(LoginActivity.this,false);
                             Utils.openActivity(LoginActivity.this,Dashboard.class);
-                            finish();
+                            finishAffinity();
                         }else {
+                            btnLogin.setEnabled(true);
                             errorMessage.setText("User role undefined.");
                             errorMessage.setVisibility(View.VISIBLE);
                         }
 
                     }else {
+                        btnLogin.setEnabled(true);
                         errorMessage.setText("Wrong email or password");
                         errorMessage.setVisibility(View.VISIBLE);
                     }
@@ -135,6 +168,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<LoginResponse> call,@NonNull Throwable t) {
+                btnLogin.setEnabled(true);
                 errorMessage.setText(t.getMessage());
                 errorMessage.setVisibility(View.VISIBLE);
                 Log.e(TAG, Objects.requireNonNull(t.getMessage()));
