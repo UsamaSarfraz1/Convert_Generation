@@ -49,6 +49,7 @@ public class Dashboard extends AppCompatActivity {
 
     DrawerLayout drawer;
     private AppBarConfiguration mAppBarConfiguration;
+    public static Menu mymenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +86,7 @@ public class Dashboard extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.dashboard, menu);
+        mymenu=menu;
         return true;
     }
     

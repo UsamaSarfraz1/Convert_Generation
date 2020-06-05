@@ -17,6 +17,12 @@
         android:visible="false"
         />
     <item
+        android:id="@+id/action_save"
+        app:showAsAction="always"
+        android:title="Save"
+        android:visible="false"
+        />
+    <item
         android:id="@+id/action_logout"
         android:title="@string/logout"
         />
