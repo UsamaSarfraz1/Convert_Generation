@@ -86,7 +86,7 @@ public class AttendanceDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Select date range please", Toast.LENGTH_SHORT).show();
             return;
         }
-        viewModel.initAttendanceByRange(progressBar,from,to,User_Id);
+        viewModel.initAttendanceByRange(progressBar,from,to,User_Id,Utils.isAdmin(AttendanceDetailActivity.this));
         viewModel.getLiveAttendanceByRange().observe(this,response -> {
             if(response != null && response.getDetails() != null){
                 list.clear();
@@ -124,37 +124,77 @@ public class AttendanceDetailActivity extends AppCompatActivity {
 
     private void getDetail() {
         progressBar.setVisibility(View.VISIBLE);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
 
-                CGITAPIs api = RetrofitService.createService(CGITAPIs.class);
-                api.getAttendanceList(User_Id,from,to).enqueue(new Callback<Root>() {
-                    @Override
-                    public void onResponse(Call<Root> call, Response<Root> response) {
-                        if(response.isSuccessful()){
-                            Root root = response.body();
-                            if(root != null && root.getStatus().equals("200")){
-                                list.addAll(root.getDetails());
-                                adapter.notifyDataSetChanged();
-                            }else {
-                                Log.i("My Errors::",root.getStatus());
+        if (Utils.isAdmin(AttendanceDetailActivity.this)){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    CGITAPIs api = RetrofitService.createService(CGITAPIs.class);
+                    api.getAttendance("view_attendance").enqueue(new Callback<Root>() {
+                        @Override
+                        public void onResponse(Call<Root> call, Response<Root> response) {
+                            if(response.isSuccessful()){
+                                Root root = response.body();
+                                if(root != null && root.getStatus().equals("200")){
+                                    list.addAll(root.getDetails());
+                                    adapter.notifyDataSetChanged();
+                                }else {
+                                    Log.i("My Errors::",root.getStatus());
+                                }
                             }
+                            progressBar.setVisibility(View.GONE);
                         }
-                        progressBar.setVisibility(View.GONE);
-                    }
 
-                    @Override
-                    public void onFailure(Call<Root> call, Throwable t) {
-                        new AlertDialog.Builder(AttendanceDetailActivity.this)
-                                .setTitle("Response")
-                                .setMessage(t.getMessage())
-                                .setPositiveButton("OK",((dialog, which) -> finish())).show();
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
-            }
-        }).start();
+                        @Override
+                        public void onFailure(Call<Root> call, Throwable t) {
+                            new AlertDialog.Builder(AttendanceDetailActivity.this)
+                                    .setTitle("Response")
+                                    .setMessage(t.getMessage())
+                                    .setPositiveButton("OK",((dialog, which) -> finish())).show();
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+
+
+                }
+            }).start();
+
+        }else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    CGITAPIs api = RetrofitService.createService(CGITAPIs.class);
+                    api.getAttendanceList(User_Id,from,to).enqueue(new Callback<Root>() {
+                        @Override
+                        public void onResponse(Call<Root> call, Response<Root> response) {
+                            if(response.isSuccessful()){
+                                Root root = response.body();
+                                if(root != null && root.getStatus().equals("200")){
+                                    list.addAll(root.getDetails());
+                                    adapter.notifyDataSetChanged();
+                                }else {
+                                    Log.i("My Errors::",root.getStatus());
+                                }
+                            }
+                            progressBar.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onFailure(Call<Root> call, Throwable t) {
+                            new AlertDialog.Builder(AttendanceDetailActivity.this)
+                                    .setTitle("Response")
+                                    .setMessage(t.getMessage())
+                                    .setPositiveButton("OK",((dialog, which) -> finish())).show();
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            }).start();
+
+        }
+
 
     }
 

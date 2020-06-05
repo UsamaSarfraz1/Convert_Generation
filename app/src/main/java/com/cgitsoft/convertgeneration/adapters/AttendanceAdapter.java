@@ -9,17 +9,23 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.cgitsoft.convertgeneration.AttendanceModel.Details;
 import com.cgitsoft.convertgeneration.R;
 import com.cgitsoft.convertgeneration.models.attendance.AttendanceDetail;
 
 import java.util.ArrayList;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.cgitsoft.convertgeneration.activities.ProfileActivity.IMAGE_URL;
+
 public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.ViewHolder> {
 
     private Context context;
     private ArrayList<Details> list;
     private LayoutInflater inflater;
+    public static String IMAGE_URL="http://cgitsoft.com/emp/img/uploads/";
 
     public AttendanceAdapter(Context context, ArrayList<Details> list) {
         this.context = context;
@@ -47,6 +53,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             holder.emp_id.setText(detail.getEmp_id());
             holder.emp_name.setText(detail.getUser_fullname());
             holder.emp_desi.setText(detail.getDesignation());
+            Glide.with(context).load(IMAGE_URL+detail.getUser_pic()).placeholder(R.drawable.no_image).into(holder.profileImage);
         }
     }
 
@@ -57,6 +64,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView emp_id,emp_name,emp_desi,att_sts,inTime,outTime,att_date,description;
+        CircleImageView profileImage;
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             emp_id = itemView.findViewById(R.id.txt_emp_id);
@@ -67,6 +75,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             description = itemView.findViewById(R.id.txt_desc);
             emp_name = itemView.findViewById(R.id.txt_emp_name);
             emp_desi = itemView.findViewById(R.id.txt_emp_designation);
+            profileImage = itemView.findViewById(R.id.profileImage);
         }
     }
 }
