@@ -63,6 +63,7 @@ public class ProfileActivity extends AppCompatActivity {
         address=findViewById(R.id.emp_address);
         phoneNumber=findViewById(R.id.emp_phone);
         TextView editProfile=findViewById(R.id.editProfile);
+        TextView saveProfile=findViewById(R.id.saveProfile);
         ImageButton btnBack=findViewById(R.id.imgbtn_back);
         updateBtn=findViewById(R.id.updateBtn);
         profilePic=findViewById(R.id.profileImage);
@@ -80,6 +81,8 @@ public class ProfileActivity extends AppCompatActivity {
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                editProfile.setVisibility(View.GONE);
+                saveProfile.setVisibility(View.VISIBLE);
                 userName.setEnabled(true);
                 name.setEnabled(true);
                 email.setEnabled(true);
@@ -87,6 +90,15 @@ public class ProfileActivity extends AppCompatActivity {
                 address.setEnabled(true);
                 phoneNumber.setEnabled(true);
                 updateBtn.setEnabled(true);
+            }
+        });
+
+        saveProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editProfile.setVisibility(View.VISIBLE);
+                saveProfile.setVisibility(View.GONE);
+                updateProfile();
             }
         });
 
