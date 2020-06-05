@@ -48,6 +48,7 @@ public class LogoutDialog extends DialogFragment {
             Utils.setSharedPref(getContext().getApplicationContext(),pref);
             Intent intent = new Intent(getContext(), LoginActivity.class);
             getContext().startActivity(intent);
+            getActivity().finishAffinity();
             dismiss();
         });
     }

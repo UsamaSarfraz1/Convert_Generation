@@ -7,6 +7,7 @@ import com.cgitsoft.convertgeneration.AttendanceModel.Root;
 import com.cgitsoft.convertgeneration.activities.AttendanceDetailActivity;
 import com.cgitsoft.convertgeneration.activities.LoginActivity;
 import com.cgitsoft.convertgeneration.activities.ResetPasswordActivity;
+import com.cgitsoft.convertgeneration.dialogs.FormatSelectorDialogFragment;
 import com.cgitsoft.convertgeneration.dialogs.LogoutDialog;
 import com.cgitsoft.convertgeneration.models.AttendanceDetail;
 import com.cgitsoft.convertgeneration.models.SharedPref;
@@ -23,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -105,7 +107,8 @@ public class Dashboard extends AppCompatActivity {
                 Utils.openActivity(Dashboard.this, ResetPasswordActivity.class);
                 break;
             case R.id.action_logout:
-
+                DialogFragment dialogFragment=new LogoutDialog();
+                dialogFragment.show(getSupportFragmentManager(),"logout");
                 break;
 
 

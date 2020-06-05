@@ -19,12 +19,12 @@ public interface CGITAPIs {
     //API to check attendance
     //http://developers.cgitsoft.com/QRV1/employee.php?action=view_attendance
     @GET("QRV1/employee.php?")
-    Call<AttendanceResponse> getAttendance(@Query("action") String action);
+    Call<Root> getAttendance(@Query("action") String action);
 
     //API to get attendance by date range
     //http://developers.cgitsoft.com/QRV1/employee.php?action=view_attendance&from=2020-03-01&to=2020-03-31
     @GET("QRV1/employee.php?")
-    Call<AttendanceResponse> getAttendanceByRange(@Query("action") String action,@Query("from")String from,
+    Call<Root> getAttendanceByRange(@Query("action") String action,@Query("from")String from,
                                                   @Query("to")String to);
 
     //API to Mark attendance by Admin login
