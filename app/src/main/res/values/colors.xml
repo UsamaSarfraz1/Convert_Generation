@@ -18,4 +18,5 @@
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
     <color name="actionbar_opacity">#33000000</color>
+    <color name="colorBlack">#000</color>
 </resources>

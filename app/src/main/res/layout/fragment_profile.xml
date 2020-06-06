@@ -20,7 +20,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+
                 >
 
                 <com.wang.avi.AVLoadingIndicatorView
@@ -37,18 +37,30 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/profileImage"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_centerHorizontal="true"
-                    android:src="@drawable/no_image"
-                    app:civ_border_color="@color/colorPrimary"
-                    app:civ_border_overlay="true"
-                    app:civ_border_width="2dp"
+                <LinearLayout
+                    android:id="@+id/profileImageContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:background="@drawable/profile_background"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/titleLayout" />
+                    app:layout_constraintTop_toBottomOf="@+id/titleLayout"
+                    >
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/profileImage"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:src="@drawable/no_image"
+                        app:civ_border_color="@color/colorBlack"
+                        app:civ_border_overlay="true"
+                        app:civ_border_width="2dp"
+                        android:layout_marginTop="50dp"
+                        android:layout_marginBottom="50dp"
+
+                        />
+                </LinearLayout>
+
 
                 <EditText
                     android:id="@+id/userName"
@@ -56,15 +68,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="50dp"
                     android:layout_marginTop="30dp"
-                    android:background="@drawable/et_profile"
                     android:hint="User Name"
                     android:inputType="text"
-                    android:paddingStart="10dp"
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
+                    android:paddingStart="10dp"
+                    android:background="@drawable/et_profile"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/profileImage" />
+                    app:layout_constraintTop_toBottomOf="@+id/profileImageContainer" />
+
+
 
                 <EditText
                     android:id="@+id/emp_name"

@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
         errorMessage = findViewById(R.id.errorMessage);
         progressBar =findViewById(R.id.progressBar);
         progressBar.hide();
-        TextView btnLogin = findViewById(R.id.btn_login);
+        
         Utills.checkConnection(this,errorMessage);
         btnLogin = findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(login -> checkPermission());
