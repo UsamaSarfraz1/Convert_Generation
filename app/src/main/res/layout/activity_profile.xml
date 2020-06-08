@@ -63,33 +63,58 @@
                     android:layout_height="wrap_content"
                     android:gravity="end"
                     >
-                    <TextView
-                        android:id="@+id/editProfile"
+                    <FrameLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/edit"
-                        android:textSize="25sp"
-                        android:textColor="#fff"
-                        android:layout_marginEnd="16dp"
-                        android:padding="10dp"/>
+                        >
+                        <TextView
+                            android:id="@+id/editProfile"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/edit"
+                            android:textSize="25sp"
+                            android:textColor="#fff"
+                            android:layout_marginEnd="16dp"
+                            android:padding="10dp"/>
+                        <TextView
+                            android:id="@+id/saveProfile"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Save"
+                            android:textSize="25sp"
+                            android:textColor="#fff"
+                            android:visibility="gone"
+                            android:layout_marginEnd="16dp"
+                            android:padding="10dp"/>
+                    </FrameLayout>
+
                 </LinearLayout>
 
             </LinearLayout>
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/profileImage"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/no_image"
-                app:civ_border_color="@color/colorPrimary"
-                app:civ_border_overlay="true"
-                app:civ_border_width="2dp"
-                android:layout_marginTop="20dp"
+            <LinearLayout
+                android:id="@+id/profileImageContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="@drawable/profile_background"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/titleLayout"
+                >
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/profileImage"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/no_image"
+                    app:civ_border_color="@color/colorBlack"
+                    app:civ_border_overlay="true"
+                    app:civ_border_width="2dp"
+                    android:layout_marginTop="50dp"
+                    android:layout_marginBottom="50dp"
 
-                />
+                    />
+            </LinearLayout>
+
 
             <EditText
                 android:id="@+id/userName"
@@ -105,7 +130,7 @@
                 android:background="@drawable/et_profile"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profileImage" />
+                app:layout_constraintTop_toBottomOf="@+id/profileImageContainer" />
 
             <EditText
                 android:id="@+id/emp_name"
@@ -205,5 +230,7 @@
         android:text="Update"
         android:enabled="false"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="50dp" />
+        tools:layout_editor_absoluteX="50dp"
+        android:visibility="gone"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

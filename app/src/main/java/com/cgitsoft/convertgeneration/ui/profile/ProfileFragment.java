@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.cgitsoft.convertgeneration.Dashboard;
 import com.cgitsoft.convertgeneration.R;
 import com.cgitsoft.convertgeneration.models.UpdateProfile.Root;
 import com.cgitsoft.convertgeneration.models.Utills;
@@ -44,6 +46,7 @@ public class ProfileFragment extends Fragment {
     CircleImageView profilePic;
     private AVLoadingIndicatorView progressBar;
     String imageUri;
+
 
     @Nullable
     @Override
@@ -82,9 +85,11 @@ public class ProfileFragment extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item=menu.findItem(R.id.edit_Profile);
-        if(item!=null)
-            item.setVisible(true);
+        MenuItem profileitem=menu.findItem(R.id.edit_Profile);
+
+        if(profileitem!=null)
+            profileitem.setVisible(true);
+
     }
 
 
@@ -146,6 +151,13 @@ public class ProfileFragment extends Fragment {
         switch (item.getItemId()){
             case R.id.edit_Profile:
                 updateEnablity(true);
+                Dashboard.mymenu.findItem(R.id.edit_Profile).setVisible(false);
+                Dashboard.mymenu.findItem(R.id.action_save).setVisible(true);
+                break;
+            case R.id.action_save:
+                updateProfile();
+                Dashboard.mymenu.findItem(R.id.edit_Profile).setVisible(true);
+                Dashboard.mymenu.findItem(R.id.action_save).setVisible(false);
                 break;
         }
 
