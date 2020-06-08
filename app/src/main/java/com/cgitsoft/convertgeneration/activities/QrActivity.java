@@ -108,7 +108,6 @@ public class QrActivity extends BaseScannerActivity implements
         setupFormats();
         contentFrame.addView(mScannerView);
 
-        Utills.checkConnection(this,contentFrame);
     }
 
     @Override
@@ -119,7 +118,6 @@ public class QrActivity extends BaseScannerActivity implements
         mScannerView.setFlash(mFlash);
         mScannerView.setAutoFocus(mAutoFocus);
 
-        Utills.checkConnection(this,contentFrame);
     }
 
     @Override
@@ -157,22 +155,6 @@ public class QrActivity extends BaseScannerActivity implements
         try {
             progressBar.setVisibility(View.VISIBLE);
             mScannerView.stopCamera();
-//            String[] data=rawResult.getText().split("\\|");
-//            String dateBase64=data[1];
-//
-//            byte[] dataa = Base64.decode(dateBase64, Base64.DEFAULT);
-//            String Date = new String(dataa, StandardCharsets.UTF_8);
-//
-//            java.util.Date c = Calendar.getInstance().getTime();
-//            System.out.println("Current time => " + c);
-//
-//            SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
-//
-//            String formattedDate = df.format(c);
-//            if (Date.equals(formattedDate)){
-//                Toast.makeText(this, "matched", Toast.LENGTH_SHORT).show();
-//            }
-//            Log.i("Current Time == ", formattedDate);
 
 
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

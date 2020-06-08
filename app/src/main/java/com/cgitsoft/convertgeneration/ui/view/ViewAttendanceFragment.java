@@ -26,6 +26,7 @@ import com.cgitsoft.convertgeneration.R;
 import com.cgitsoft.convertgeneration.activities.AttendanceDetailActivity;
 import com.cgitsoft.convertgeneration.activities.AttendanceViewModel;
 import com.cgitsoft.convertgeneration.adapters.AttendanceAdapter;
+import com.cgitsoft.convertgeneration.models.Utills;
 import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.models.attendance.AttendanceResponse;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
@@ -43,12 +44,14 @@ import retrofit2.Response;
 
 public class ViewAttendanceFragment extends Fragment {
 
+    private final static String TAG = ViewAttendanceFragment.class.getSimpleName();
     private ArrayList<Details> list;
     private AttendanceAdapter adapter;
     private AVLoadingIndicatorView progressBar;
     private TextView txtFrom,txtTo;
     private AttendanceViewModel viewModel;
     String User_Id,from,to;
+    RecyclerView recyclerView;
 
     @Nullable
     @Override
@@ -56,42 +59,52 @@ public class ViewAttendanceFragment extends Fragment {
 
         View v;
         v=inflater.inflate(R.layout.fragment_view_attendance,container,false);
-        progressBar = v.findViewById(R.id.progressBar);
-        txtFrom = v.findViewById(R.id.txt_from);
-        txtTo = v.findViewById(R.id.txt_to);
-        ImageButton imgbtnFrom = v.findViewById(R.id.imgbtn_from);
-        ImageButton imgbtnTo = v.findViewById(R.id.imgbtn_to);
-        ImageButton btnBack = v.findViewById(R.id.imgbtn_back);
-        Button btnFilter = v.findViewById(R.id.btn_filterResult);
-        RecyclerView recyclerView = v.findViewById(R.id.recyclerView);
+        viewModel = new ViewModelProvider(this).get(AttendanceViewModel.class);
+        init(v);
+        viewModel=new ViewModelProvider(this).get(AttendanceViewModel.class);
+        viewModel.init(progressBar,from,to,User_Id,Utils.isAdmin(getContext()));
+        viewModel.getCurrentData().observe(getActivity(), root -> {
+            if(root != null && root.getDetails() != null){
+                Log.i(TAG,"observe");
+                list.clear();
+                list.addAll(root.getDetails());
+                adapter.notifyDataSetChanged();
+            }
+        });
 
+        setUpRecyclerView(recyclerView);
+        return v;
+    }
+
+    private void init(View view) {
+
+        progressBar = view.findViewById(R.id.progressBar);
+        txtFrom = view.findViewById(R.id.txt_from);
+        txtTo = view.findViewById(R.id.txt_to);
+        ImageButton imgbtnFrom = view.findViewById(R.id.imgbtn_from);
+        ImageButton imgbtnTo = view.findViewById(R.id.imgbtn_to);
+        Button btnFilter = view.findViewById(R.id.btn_filterResult);
+        recyclerView = view.findViewById(R.id.recyclerView);
         User_Id= Utils.getSharedPref(getContext()).getId();
-
         imgbtnFrom.setOnClickListener(from -> setDate(txtFrom));
         imgbtnTo.setOnClickListener(to -> setDate(txtTo));
         btnFilter.setOnClickListener(filter -> validateDates());
-        setUpRecyclerView(recyclerView);
-        viewModel = new ViewModelProvider(this).get(AttendanceViewModel.class);
-
-        getDetail();
-        return v;
     }
 
     private void validateDates() {
         from = txtFrom.getText().toString().trim();
         to = txtTo.getText().toString().trim();
-        if(from.isEmpty() || to.isEmpty()){
+        if(from.isEmpty() || to.isEmpty()) {
             Toast.makeText(getContext(), "Select date range please", Toast.LENGTH_SHORT).show();
             return;
         }
-        viewModel.initAttendanceByRange(progressBar,from,to,User_Id,Utils.isAdmin(getContext()));
-        viewModel.getLiveAttendanceByRange().observe(getActivity(),response -> {
-            if(response != null && response.getDetails() != null){
-                list.clear();
-                list.addAll(response.getDetails());
-                adapter.notifyDataSetChanged();
-            }
-        });
+
+        if (Utils.isAdmin(getContext())){
+            viewModel.getAdminDataByRange(progressBar,from,to,User_Id);
+        }else {
+            viewModel.getEmployeeDataByRange(progressBar,from,to,User_Id);
+        }
+
     }
 
     private void setDate(TextView textView) {
@@ -119,80 +132,4 @@ public class ViewAttendanceFragment extends Fragment {
         adapter = new AttendanceAdapter(getContext(),list);
         recyclerView.setAdapter(adapter);
     }
-
-    private void getDetail() {
-        progressBar.setVisibility(View.VISIBLE);
-
-        if (Utils.isAdmin(getContext())) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    CGITAPIs api = RetrofitService.createService(CGITAPIs.class);
-                    api.getAttendance("view_attendance").enqueue(new Callback<Root>() {
-                        @Override
-                        public void onResponse(Call<Root> call, Response<Root> response) {
-                            if (response.isSuccessful()) {
-                                Root root = response.body();
-                                if (root != null && root.getStatus().equals("200")) {
-                                    list.addAll(root.getDetails());
-                                    adapter.notifyDataSetChanged();
-                                } else {
-                                    Log.i("My Errors::", root.getStatus());
-                                }
-                            }
-                            progressBar.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onFailure(Call<Root> call, Throwable t) {
-                            new AlertDialog.Builder(getContext())
-                                    .setTitle("Response")
-                                    .setMessage(t.getMessage())
-                                    .setPositiveButton("OK", ((dialog, which) -> getActivity().finish())).show();
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
-
-
-                }
-            }).start();
-
-        } else {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    CGITAPIs api = RetrofitService.createService(CGITAPIs.class);
-                    api.getAttendanceList(User_Id, from, to).enqueue(new Callback<Root>() {
-                        @Override
-                        public void onResponse(Call<Root> call, Response<Root> response) {
-                            if (response.isSuccessful()) {
-                                Root root = response.body();
-                                if (root != null && root.getStatus().equals("200")) {
-                                    list.addAll(root.getDetails());
-                                    adapter.notifyDataSetChanged();
-                                } else {
-                                    Log.i("My Errors::", root.getStatus());
-                                }
-                            }
-                            progressBar.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onFailure(Call<Root> call, Throwable t) {
-                            new AlertDialog.Builder(getContext())
-                                    .setTitle("Response")
-                                    .setMessage(t.getMessage())
-                                    .setPositiveButton("OK", ((dialog, which) -> getActivity().finish())).show();
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
-                }
-            }).start();
-
-        }
-
-    }
-
 }

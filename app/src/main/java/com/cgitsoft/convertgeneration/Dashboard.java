@@ -2,6 +2,8 @@ package com.cgitsoft.convertgeneration;
 
 import android.os.Bundle;
 
+import com.androidstudy.networkmanager.Monitor;
+import com.androidstudy.networkmanager.Tovuti;
 import com.cgitsoft.convertgeneration.AttendanceModel.Details;
 import com.cgitsoft.convertgeneration.AttendanceModel.Root;
 import com.cgitsoft.convertgeneration.activities.AttendanceDetailActivity;
@@ -50,6 +52,8 @@ public class Dashboard extends AppCompatActivity {
     DrawerLayout drawer;
     private AppBarConfiguration mAppBarConfiguration;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +68,11 @@ public class Dashboard extends AppCompatActivity {
         NavigationView navigationView = findViewById(R.id.nav_view);
 
         //check internet connectivity
-        Utills.checkConnection(this,drawer);
+        Tovuti.from(this).monitor(new Monitor.ConnectivityListener(){
+            @Override
+            public void onConnectivityChanged(int connectionType, boolean isConnected, boolean isFast){
+            }
+        });
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -119,7 +127,6 @@ public class Dashboard extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Utills.checkConnection(Dashboard.this,drawer);
 
     }
 }

@@ -13,11 +13,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.cgitsoft.convertgeneration.activities.QrActivity;
 
 import java.util.Objects;
 
@@ -82,4 +85,12 @@ public class Utils {
         SharedPreferences preferences = context.getApplicationContext().getSharedPreferences("isAdmin",0);
         return preferences.getBoolean("role",false);
     }
+
+    public static void showAlertDialog(Context context,String title,String Message){
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(Message)
+                .setPositiveButton("OK",((dialog, which) -> ((Activity)context).finish())).show().setCancelable(false);
+    }
+
 }

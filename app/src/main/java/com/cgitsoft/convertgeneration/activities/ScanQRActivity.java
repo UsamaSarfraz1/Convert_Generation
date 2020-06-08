@@ -44,7 +44,6 @@ public class ScanQRActivity extends AppCompatActivity implements BarcodeReader.B
 
         title = findViewById(R.id.title);
 
-        Utills.checkConnection(this,title);
         if(!Utils.isAdmin(this)){
             lat = getIntent().getStringExtra("lat");
             lng = getIntent().getStringExtra("lng");
@@ -168,6 +167,5 @@ public class ScanQRActivity extends AppCompatActivity implements BarcodeReader.B
     @Override
     protected void onResume() {
         super.onResume();
-        Utills.checkConnection(this,title);
     }
 }

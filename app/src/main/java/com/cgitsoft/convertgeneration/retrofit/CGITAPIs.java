@@ -16,12 +16,12 @@ public interface CGITAPIs {
     @GET("QRV1//employee.php?action=login")
     Call<LoginResponse> getStudentResponse(@Query("email") String email, @Query("password") String password);
 
-    //API to check attendance
+    //API to check attendance for admin
     //http://developers.cgitsoft.com/QRV1/employee.php?action=view_attendance
     @GET("QRV1/employee.php?")
     Call<Root> getAttendance(@Query("action") String action);
 
-    //API to get attendance by date range
+    //API to get attendance by date range for admin
     //http://developers.cgitsoft.com/QRV1/employee.php?action=view_attendance&from=2020-03-01&to=2020-03-31
     @GET("QRV1/employee.php?")
     Call<Root> getAttendanceByRange(@Query("action") String action,@Query("from")String from,

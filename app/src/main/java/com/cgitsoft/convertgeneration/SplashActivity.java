@@ -18,6 +18,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.androidstudy.networkmanager.Monitor;
+import com.androidstudy.networkmanager.Tovuti;
 import com.cgitsoft.convertgeneration.activities.LoginActivity;
 import com.cgitsoft.convertgeneration.models.SharedPref;
 import com.cgitsoft.convertgeneration.models.Utils;
@@ -27,6 +29,9 @@ import static com.cgitsoft.convertgeneration.Constants.PERMISSION_CAMERA;
 
 public class SplashActivity extends AppCompatActivity {
 
+    public static String title= "Internet Connection";
+    public static String ON_message= "Internet Connected!!!";
+    public static String OFF_message= "Not Connected!!!";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +45,16 @@ public class SplashActivity extends AppCompatActivity {
         FloatingActionButton btnLogin = findViewById(R.id.fab_go);
         btnLogin.setVisibility(View.GONE);
         btnLogin.setOnClickListener(login -> checkPermission());
+
+        //check internet connectivity
+        Tovuti.from(this).monitor(new Monitor.ConnectivityListener(){
+            @Override
+            public void onConnectivityChanged(int connectionType, boolean isConnected, boolean isFast){
+                if (!isConnected){
+                    Utils.showAlertDialog(SplashActivity.this,title,OFF_message);
+                }
+            }
+        });
     }
     private void checkPermission() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){

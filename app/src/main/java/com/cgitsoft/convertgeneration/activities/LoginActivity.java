@@ -8,12 +8,8 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,7 +20,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cgitsoft.convertgeneration.Dashboard;
 import com.cgitsoft.convertgeneration.R;
@@ -36,13 +31,11 @@ import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.models.login.LoginResponse;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
 import com.cgitsoft.convertgeneration.retrofit.RetrofitService;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.Objects;
 
-import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -70,27 +63,6 @@ public class LoginActivity extends AppCompatActivity {
         transparentToolbar();
         init();
 
-//        final ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//
-//        NetworkRequest.Builder builder = new NetworkRequest.Builder();
-//        if (connectivityManager != null) {
-//            connectivityManager.registerNetworkCallback(builder.build(),
-//                    new ConnectivityManager.NetworkCallback() {
-//                        @Override
-//                        public void onAvailable(@NonNull Network network) {
-//                            super.onAvailable(network);
-//                            Toast.makeText(LoginActivity.this, "Connection Available", Toast.LENGTH_SHORT).show();
-//                        }
-//
-//                        @Override
-//                        public void onLost(@NonNull Network network) {
-//                            super.onLost(network);
-//                            Toast.makeText(LoginActivity.this, "Connection Lost", Toast.LENGTH_SHORT).show();
-//                        }
-//
-//                    });
-//        }
-
 
         //TextView btnLogin = findViewById(R.id.btn_login);
         //btnLogin.setOnClickListener(login -> checkPermission());
@@ -102,8 +74,7 @@ public class LoginActivity extends AppCompatActivity {
         errorMessage = findViewById(R.id.errorMessage);
         progressBar =findViewById(R.id.progressBar);
         progressBar.hide();
-        TextView btnLogin = findViewById(R.id.btn_login);
-        Utills.checkConnection(this,errorMessage);
+
         btnLogin = findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(login -> checkPermission());
     }
@@ -148,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
                             finishAffinity();
                         }else if(loginResponse.getUser_role()[0].equals("employee")){
                             Utils.setIsAdmin(LoginActivity.this,false);
-                            Utils.openActivity(LoginActivity.this,Dashboard.class);
+                            Utils.openActivity(LoginActivity.this, Dashboard.class);
                             finishAffinity();
                         }else {
                             btnLogin.setEnabled(true);
