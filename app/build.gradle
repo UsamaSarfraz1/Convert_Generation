@@ -1,4 +1,7 @@
+apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
 
 android {
     compileSdkVersion 29
@@ -10,6 +13,11 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [
+                onesignal_app_id: 'd63718bc-735d-4c72-96a5-ca2926653997',
+                // Project number pulled from dashboard, local value is ignored.
+                onesignal_google_project_number: 'REMOTE'
+        ]
     }
     buildTypes {
         release {
@@ -32,6 +40,8 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.2.1'
     implementation 'androidx.navigation:navigation-ui:2.2.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'com.google.firebase:firebase-database:16.0.4'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -70,4 +80,8 @@ dependencies {
 
     //Internet Connection
     implementation 'com.github.jumadeveloper:networkmanager:0.0.2'
+
+    //One Signal Api
+    implementation 'com.onesignal:OneSignal:[3.13.0, 3.99.99]'
+
 }

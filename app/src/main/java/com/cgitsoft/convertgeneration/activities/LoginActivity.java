@@ -8,8 +8,12 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,9 +24,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.androidstudy.networkmanager.Monitor;
+import com.androidstudy.networkmanager.Tovuti;
 import com.cgitsoft.convertgeneration.Dashboard;
+import com.cgitsoft.convertgeneration.Notification.Token;
 import com.cgitsoft.convertgeneration.R;
+import com.cgitsoft.convertgeneration.SplashActivity;
 import com.cgitsoft.convertgeneration.dialogs.LoginDialog;
 import com.cgitsoft.convertgeneration.interfaces.DialogListener;
 import com.cgitsoft.convertgeneration.models.SharedPref;
@@ -31,9 +40,20 @@ import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.models.login.LoginResponse;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
 import com.cgitsoft.convertgeneration.retrofit.RetrofitService;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -46,11 +66,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG =LoginDialog.class.getSimpleName();
 
+    public static String title= "Internet Connection";
+    public static String ON_message= "Internet Connected!!!";
+    public static String OFF_message= "Not Connected!!!";
     private TextInputEditText fEmail,fPassword;
     private TextView errorMessage;
     private AVLoadingIndicatorView progressBar;
     private static DialogListener listener;
     TextView btnLogin;
+    boolean isConnect=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,10 +100,12 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.hide();
 
         btnLogin = findViewById(R.id.btn_login);
-        btnLogin.setOnClickListener(login -> checkPermission());
+        btnLogin.setOnClickListener(login -> {
+                checkPermission();
+        });
     }
 
-    private void validateFields() {
+    private void validateFields()  {
         if(errorMessage.getVisibility() == View.VISIBLE){
             errorMessage.setVisibility(View.GONE);
         }
@@ -91,63 +117,73 @@ public class LoginActivity extends AppCompatActivity {
             fEmail.setFocusableInTouchMode(true);
             return;
         }
-        /*if(password.isEmpty()){
-            fPassword.setError("Field Required");
-            fPassword.setShowSoftInputOnFocus(true);
-            fPassword.setFocusableInTouchMode(true);
-            return;
-        }*/
         loginUser(email,password);
     }
 
     private void loginUser(String email, String password) {
-        btnLogin.setEnabled(false);
-        progressBar.show();
-        CGITAPIs api = RetrofitService.createService(CGITAPIs.class);
-        api.getStudentResponse(email,password).enqueue(new Callback<LoginResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
-                if(response.isSuccessful()){
-                    LoginResponse loginResponse = response.body();
-                    if(loginResponse != null && loginResponse.getCode().equals("200")){
-                        SharedPref pref = new SharedPref(loginResponse.getUser_details().getUser_id(),true);
-                        Utils.setSharedPref(getApplicationContext(),pref);
-                        Utills.setProfileData(loginResponse.getUser_details(),LoginActivity.this);
-                        if(loginResponse.getUser_role()[0].equals("administrator")){
-                            Utils.setIsAdmin(LoginActivity.this,true);
-                            Utils.openActivity(LoginActivity.this,Dashboard.class);
-                            finishAffinity();
-                        }else if(loginResponse.getUser_role()[0].equals("employee")){
-                            Utils.setIsAdmin(LoginActivity.this,false);
-                            Utils.openActivity(LoginActivity.this, Dashboard.class);
-                            finishAffinity();
-                        }else {
+        if (checkInternet()) {
+            btnLogin.setEnabled(false);
+            progressBar.show();
+            CGITAPIs api = RetrofitService.createService(CGITAPIs.class);
+            api.getStudentResponse(email, password).enqueue(new Callback<LoginResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
+                    if (response.isSuccessful()) {
+                        LoginResponse loginResponse = response.body();
+                        if (loginResponse != null && loginResponse.getCode().equals("200")) {
+                            SharedPref pref = new SharedPref(loginResponse.getUser_details().getUser_id(), true);
+                            Utils.setSharedPref(getApplicationContext(), pref);
+                            Utills.setProfileData(loginResponse.getUser_details(), LoginActivity.this);
+                            if (loginResponse.getUser_role()[0].equals("administrator")) {
+                                Utils.setIsAdmin(LoginActivity.this, true);
+                                FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
+                                    String newToken = instanceIdResult.getToken();
+                                    updateToken(newToken);
+                                });
+                                Utils.openActivity(LoginActivity.this, Dashboard.class);
+                                finishAffinity();
+                            } else if (loginResponse.getUser_role()[0].equals("employee")) {
+                                Utils.setIsAdmin(LoginActivity.this, false);
+                                Utils.openActivity(LoginActivity.this, Dashboard.class);
+                                finishAffinity();
+                            } else {
+                                btnLogin.setEnabled(true);
+                                errorMessage.setText("User role undefined.");
+                                errorMessage.setVisibility(View.VISIBLE);
+                            }
+
+                        } else {
                             btnLogin.setEnabled(true);
-                            errorMessage.setText("User role undefined.");
+                            errorMessage.setText("Wrong email or password");
                             errorMessage.setVisibility(View.VISIBLE);
                         }
-
-                    }else {
-                        btnLogin.setEnabled(true);
-                        errorMessage.setText("Wrong email or password");
-                        errorMessage.setVisibility(View.VISIBLE);
                     }
+                    progressBar.hide();
                 }
-                progressBar.hide();
-            }
 
-            @Override
-            public void onFailure(@NonNull Call<LoginResponse> call,@NonNull Throwable t) {
-                btnLogin.setEnabled(true);
-                errorMessage.setText(t.getMessage());
-                errorMessage.setVisibility(View.VISIBLE);
-                Log.e(TAG, Objects.requireNonNull(t.getMessage()));
-                progressBar.hide();
-            }
-        });
+                @Override
+                public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
+                    btnLogin.setEnabled(true);
+                    errorMessage.setText(t.getMessage());
+                    errorMessage.setVisibility(View.VISIBLE);
+                    Log.e(TAG, Objects.requireNonNull(t.getMessage()));
+                    progressBar.hide();
+                }
+            });
+        }else {
+            progressBar.hide();
+            Utils.showAlertDialog(LoginActivity.this,title,OFF_message);
+        }
     }
 
-    private void checkPermission() {
+
+    private void updateToken(String token){
+        DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("Tokens");
+        Token token1=new Token(token);
+        databaseReference.setValue(token1);
+    }
+
+    private void checkPermission()  {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
             validateFields();
         }else {
@@ -171,7 +207,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_CAMERA) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                validateFields();
+                    validateFields();
             }
         }
     }
@@ -189,27 +225,9 @@ public class LoginActivity extends AppCompatActivity {
         winParams.flags &= ~WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
         win.setAttributes(winParams);
     }
-    public void setupUI(View view) {
 
-        // Set up touch listener for non-text box views to hide keyboard.
-        if (!(view instanceof EditText)) {
-            view.setOnTouchListener(new View.OnTouchListener() {
-                public boolean onTouch(View v, MotionEvent event) {
-                    Utils.hideSoftKeyboard(LoginActivity.this);
-                    return false;
-                }
-            });
-        }
-
-        //If a layout container, iterate over children and seed recursion.
-        if (view instanceof ViewGroup) {
-            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
-                View innerView = ((ViewGroup) view).getChildAt(i);
-                setupUI(innerView);
-            }
-        }
-
-
+    public boolean checkInternet(){
+        return Utils.isConnected(this);
     }
 
 }

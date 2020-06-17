@@ -21,62 +21,74 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"
             />
-        <TextView
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/containerForadmin"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/employee_id"
-            android:id="@+id/EmployeeId"
-            android:layout_marginTop="@dimen/_2sdp"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@+id/profileImage"
-            app:layout_constraintStart_toStartOf="parent" />
-        <TextView
-            android:id="@+id/txt_emp_id"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAlignment="viewEnd"
-            app:layout_constraintTop_toTopOf="@id/EmployeeId"
-            app:layout_constraintStart_toEndOf="@id/EmployeeId"
-            app:layout_constraintEnd_toEndOf="parent" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Employee Name"
-            android:layout_marginTop="@dimen/_2sdp"
-            android:id="@+id/EmployeeName"
-            app:layout_constraintTop_toBottomOf="@id/txt_emp_id"
-            app:layout_constraintStart_toStartOf="parent" />
-        <TextView
-            android:id="@+id/txt_emp_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAlignment="viewEnd"
-            app:layout_constraintTop_toTopOf="@id/EmployeeName"
-            app:layout_constraintStart_toEndOf="@id/EmployeeName"
-            app:layout_constraintEnd_toEndOf="parent" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Employee Designation"
-            android:layout_marginTop="@dimen/_2sdp"
-            android:id="@+id/EmployeeDesignation"
-            app:layout_constraintTop_toBottomOf="@id/txt_emp_name"
-            app:layout_constraintStart_toStartOf="parent" />
-        <TextView
-            android:id="@+id/txt_emp_designation"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAlignment="viewEnd"
-            app:layout_constraintTop_toTopOf="@id/EmployeeDesignation"
-            app:layout_constraintStart_toEndOf="@id/EmployeeDesignation"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/employee_id"
+                android:id="@+id/EmployeeId"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="@dimen/_2sdp"
+                />
+            <TextView
+                android:id="@+id/txt_emp_id"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewEnd"
+                app:layout_constraintTop_toTopOf="@id/EmployeeId"
+                app:layout_constraintStart_toEndOf="@id/EmployeeId"
+                app:layout_constraintEnd_toEndOf="parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Employee Name"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:id="@+id/EmployeeName"
+                app:layout_constraintTop_toBottomOf="@id/txt_emp_id"
+                app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/txt_emp_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewEnd"
+                app:layout_constraintTop_toTopOf="@id/EmployeeName"
+                app:layout_constraintStart_toEndOf="@id/EmployeeName"
+                app:layout_constraintEnd_toEndOf="parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Employee Designation"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:id="@+id/EmployeeDesignation"
+                app:layout_constraintTop_toBottomOf="@id/txt_emp_name"
+                app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/txt_emp_designation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewEnd"
+                app:layout_constraintTop_toTopOf="@id/EmployeeDesignation"
+                app:layout_constraintStart_toEndOf="@id/EmployeeDesignation"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/attendance_status"
             android:id="@+id/AttendanceStatus"
             android:layout_marginTop="@dimen/_2sdp"
-            app:layout_constraintTop_toBottomOf="@id/txt_emp_designation"
+            app:layout_constraintTop_toBottomOf="@id/containerForadmin"
             app:layout_constraintStart_toStartOf="parent" />
         <TextView
             android:layout_width="0dp"

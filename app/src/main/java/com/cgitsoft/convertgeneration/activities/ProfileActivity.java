@@ -12,6 +12,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.androidstudy.networkmanager.Monitor;
+import com.androidstudy.networkmanager.Tovuti;
 import com.bumptech.glide.Glide;
 import com.cgitsoft.convertgeneration.R;
 import com.cgitsoft.convertgeneration.models.UpdateProfile.Root;
@@ -32,6 +34,9 @@ public class ProfileActivity extends AppCompatActivity {
 
 
 
+    public static String title= "Internet Connection";
+    public static String ON_message= "Internet Connected!!!";
+    public static String OFF_message= "Not Connected!!!";
     public static String IMAGE_URL="http://cgitsoft.com/emp/img/uploads/";
     EditText userName;
     EditText name;
@@ -44,6 +49,9 @@ public class ProfileActivity extends AppCompatActivity {
     CircleImageView profilePic;
     private AVLoadingIndicatorView progressBar;
     String imageUri;
+    TextView editProfile;
+    boolean isConnect=true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +59,7 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         init();
         setData();
+
 
     }
 
@@ -62,7 +71,7 @@ public class ProfileActivity extends AppCompatActivity {
         cnic=findViewById(R.id.emp_cnic);
         address=findViewById(R.id.emp_address);
         phoneNumber=findViewById(R.id.emp_phone);
-        TextView editProfile=findViewById(R.id.editProfile);
+        editProfile=findViewById(R.id.editProfile);
         TextView saveProfile=findViewById(R.id.saveProfile);
         ImageButton btnBack=findViewById(R.id.imgbtn_back);
         updateBtn=findViewById(R.id.updateBtn);
@@ -80,15 +89,19 @@ public class ProfileActivity extends AppCompatActivity {
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editProfile.setVisibility(View.GONE);
-                saveProfile.setVisibility(View.VISIBLE);
-                userName.setEnabled(true);
-                name.setEnabled(true);
-                email.setEnabled(true);
-                cnic.setEnabled(true);
-                address.setEnabled(true);
-                phoneNumber.setEnabled(true);
-                updateBtn.setEnabled(true);
+                if (Utils.isConnected(ProfileActivity.this)) {
+                    editProfile.setVisibility(View.GONE);
+                    saveProfile.setVisibility(View.VISIBLE);
+                    userName.setEnabled(true);
+                    name.setEnabled(true);
+                    email.setEnabled(true);
+                    cnic.setEnabled(true);
+                    address.setEnabled(true);
+                    phoneNumber.setEnabled(true);
+                    updateBtn.setEnabled(true);
+                }else {
+                    Utils.showAlertDialog(ProfileActivity.this,title,OFF_message);
+                }
             }
         });
 
@@ -182,5 +195,11 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Tovuti.from(this).stop();
     }
 }

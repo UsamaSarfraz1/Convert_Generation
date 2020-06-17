@@ -18,22 +18,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.androidstudy.networkmanager.Monitor;
+import com.androidstudy.networkmanager.Tovuti;
+import com.cgitsoft.convertgeneration.Dashboard;
+import com.cgitsoft.convertgeneration.Notification.Client;
+import com.cgitsoft.convertgeneration.Notification.sendNotification;
+import com.cgitsoft.convertgeneration.Notification.showNotification;
 import com.cgitsoft.convertgeneration.R;
 import com.cgitsoft.convertgeneration.dialogs.CameraSelectorDialogFragment;
 import com.cgitsoft.convertgeneration.dialogs.FormatSelectorDialogFragment;
+import com.cgitsoft.convertgeneration.interfaces.APIService;
 import com.cgitsoft.convertgeneration.models.GeoLocationAttendance;
 import com.cgitsoft.convertgeneration.models.MarkAttendanceResponse;
 import com.cgitsoft.convertgeneration.models.SharedPref;
 import com.cgitsoft.convertgeneration.models.Utills;
 import com.cgitsoft.convertgeneration.models.Utils;
+import com.cgitsoft.convertgeneration.models.login.UserDetail;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
 import com.cgitsoft.convertgeneration.retrofit.RetrofitService;
+import com.google.android.gms.common.api.Api;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,6 +55,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.view.MenuItem.SHOW_AS_ACTION_NEVER;
+import static com.cgitsoft.convertgeneration.Constants.MESSAGE;
+import static com.cgitsoft.convertgeneration.Constants.NAME;
+import static com.cgitsoft.convertgeneration.Constants.TITLE;
 
 public class QrActivity extends BaseScannerActivity implements
         ZXingScannerView.ResultHandler, FormatSelectorDialogFragment.FormatSelectorDialogListener,
@@ -68,6 +81,12 @@ public class QrActivity extends BaseScannerActivity implements
     ViewGroup contentFrame;
     Ringtone r;
     private AVLoadingIndicatorView progressBar;
+    public static String title= "Internet Connection";
+    public static String ON_message= "Internet Connected!!!";
+    public static String OFF_message= "Not Connected!!!";
+    boolean isConnect=true;
+    APIService apiService;
+
 
 
     @Override
@@ -78,6 +97,9 @@ public class QrActivity extends BaseScannerActivity implements
 
 
         progressBar = findViewById(R.id.progressBar);
+        apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
+        UserDetail userDetail= Utills.getProfileData(this);
+        NAME=userDetail.getUsername();
 
         if(state != null) {
             mFlash = state.getBoolean(FLASH_STATE, false);
@@ -99,6 +121,7 @@ public class QrActivity extends BaseScannerActivity implements
             }
         }
 
+        //check internet connectivity
 
 
         setupToolbar();
@@ -107,6 +130,8 @@ public class QrActivity extends BaseScannerActivity implements
         mScannerView = new ZXingScannerView(this);
         setupFormats();
         contentFrame.addView(mScannerView);
+
+
 
     }
 
@@ -155,28 +180,35 @@ public class QrActivity extends BaseScannerActivity implements
         try {
             progressBar.setVisibility(View.VISIBLE);
             mScannerView.stopCamera();
-
-
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             r = RingtoneManager.getRingtone(getApplicationContext(), notification);
             Log.d(TAG, rawResult.getText());
             String s = rawResult.getText();
             SharedPref sharedPref = Utils.getSharedPref(getApplicationContext());
             CGITAPIs api = RetrofitService.createService(CGITAPIs.class);
-            if(Utils.isAdmin(QrActivity.this)){
-                api.markAttendance("mark_attendance",s,sharedPref.getId()).enqueue(new QrActivity.apiResponse());
-            }else {
-                if(s.equals("cgit")){
-                    api.geoLocationAttendance(sharedPref.getId(),lat,lng).enqueue(new QrActivity.geoApiResponse());
+            if (Utils.isConnected(this)){
+                if(Utils.isAdmin(QrActivity.this)){
+                    api.markAttendance("mark_attendance",s,sharedPref.getId()).enqueue(new QrActivity.apiResponse());
                 }else {
-                    progressBar.setVisibility(View.GONE);
-                    r.play();
-                    new AlertDialog.Builder(QrActivity.this)
-                            .setTitle("Wrong QR Code")
-                            .setMessage("Wrong QR Code -> "+s)
-                            .setPositiveButton("OK",((dialog, which) -> finish())).show();
+                    if(s.equals("cgit")){
+                        api.geoLocationAttendance(sharedPref.getId(),lat,lng).enqueue(new QrActivity.geoApiResponse());
+                    }else {
+                        progressBar.setVisibility(View.GONE);
+                        r.play();
+                        new AlertDialog.Builder(QrActivity.this)
+                                .setTitle("Wrong QR Code")
+                                .setMessage("Wrong QR Code -> "+s)
+                                .setPositiveButton("OK",((dialog, which) -> finish())).show();
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                        String id = sdf.format(new Date()).substring(6);
+                        Log.i("values=",id);
+                        sendNotification.Notify(MESSAGE+NAME+" at "+sdf.format(new Date()),TITLE+"IN",QrActivity.this,apiService,id);
+                    }
                 }
+            }else {
+                Utils.showAlertDialog(QrActivity.this,title,OFF_message);
             }
+
         } catch (Exception e) {}
 
         
@@ -308,6 +340,12 @@ public class QrActivity extends BaseScannerActivity implements
                             .setMessage(attendanceResponse.getMessage())
                             .setPositiveButton("OK",((dialog, which) -> finish())).show();
                 }
+            }else {
+                progressBar.setVisibility(View.GONE);
+                new AlertDialog.Builder(QrActivity.this)
+                        .setTitle("Response")
+                        .setMessage("Check Your Internet Connection")
+                        .setPositiveButton("OK",((dialog, which) -> finish())).show();
             }
         }
 
@@ -330,6 +368,13 @@ public class QrActivity extends BaseScannerActivity implements
                 r.play();
                 GeoLocationAttendance attendanceResponse = response.body();
                 if(attendanceResponse != null){
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                    String id = sdf.format(new Date()).substring(6);
+                    if (attendanceResponse.getMessage().contains("IN")){
+                        sendNotification.Notify(MESSAGE+NAME+" at "+sdf.format(new Date()),TITLE+"IN",QrActivity.this,apiService,id);
+                    }else if (attendanceResponse.getMessage().contains("OUT")){
+                        sendNotification.Notify(MESSAGE+NAME+" at "+sdf.format(new Date()),TITLE+"OUT",QrActivity.this,apiService,id);
+                    }
                     new AlertDialog.Builder(QrActivity.this)
                             .setTitle("Response")
                             .setMessage(attendanceResponse.getMessage())
@@ -338,7 +383,7 @@ public class QrActivity extends BaseScannerActivity implements
                     progressBar.setVisibility(View.GONE);
                     new AlertDialog.Builder(QrActivity.this)
                             .setTitle("Response")
-                            .setMessage("Empty Response")
+                            .setMessage("Check Your Internet Connection")
                             .setPositiveButton("OK",((dialog, which) -> finish())).show();
                 }
             }else {
@@ -360,4 +405,5 @@ public class QrActivity extends BaseScannerActivity implements
                     .setPositiveButton("OK",((dialog, which) -> finish())).show();
         }
     }
+
 }

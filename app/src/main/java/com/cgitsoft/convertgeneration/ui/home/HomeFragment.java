@@ -1,5 +1,6 @@
 package com.cgitsoft.convertgeneration.ui.home;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.cgitsoft.convertgeneration.Fragments.QrFragment;
 import com.cgitsoft.convertgeneration.R;
 import com.cgitsoft.convertgeneration.activities.AttendanceDetailActivity;
 import com.cgitsoft.convertgeneration.activities.ProfileActivity;
@@ -52,15 +54,16 @@ public class HomeFragment extends Fragment {
         init();
         return v;
     }
+
     private void init() {
         CardView cardQR = v.findViewById(R.id.card_scanQR);
         CardView cardAttendance = v.findViewById(R.id.card_attendance);
         CardView viewAttendance = v.findViewById(R.id.viewAttendance);
         CardView viewProfile = v.findViewById(R.id.card_profile);
 
-        if(!Utils.isAdmin(requireContext())){
+        if (!Utils.isAdmin(requireContext())) {
             cardAttendance.setVisibility(View.GONE);
-        }else{
+        } else {
             cardAttendance.setVisibility(View.VISIBLE);
             viewAttendance.setVisibility(View.GONE);
         }
@@ -81,10 +84,10 @@ public class HomeFragment extends Fragment {
 
 
         cardQR.setOnClickListener(Qr -> {
-            if(Utils.isAdmin(requireContext())){
+            if (Utils.isAdmin(requireContext())) {
                 Intent intent = new Intent(context, QrActivity.class);
                 startActivity(intent);
-            }else {
+            } else {
                 checkLocationPermission();
             }
 
@@ -92,36 +95,46 @@ public class HomeFragment extends Fragment {
     }
 
     private void getDashboard() {
-        providerClient.getLastLocation().addOnCompleteListener(task ->{
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        providerClient.getLastLocation().addOnCompleteListener(task -> {
             Location location = task.getResult();
-            if(location != null){
-                Intent intent = new Intent(requireContext(),QrActivity.class);
-                intent.putExtra("lat",String.valueOf(location.getLatitude()));
-                intent.putExtra("lng",String.valueOf(location.getLongitude()));
+            if (location != null) {
+                Intent intent = new Intent(requireContext(), QrActivity.class);
+                intent.putExtra("lat", String.valueOf(location.getLatitude()));
+                intent.putExtra("lng", String.valueOf(location.getLongitude()));
                 startActivity(intent);
-            }else {
+            } else {
                 LocationRequest locationRequest = new LocationRequest();
                 locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
                 locationRequest.setInterval(4000);
                 locationRequest.setFastestInterval(2000);
                 providerClient.requestLocationUpdates(locationRequest,
-                        new LocationCallback(){
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        super.onLocationResult(locationResult);
-                        Location location1 = locationResult.getLastLocation();
-                        if(location1 != null){
-                            Intent intent = new Intent(requireContext(),QrActivity.class);
-                            intent.putExtra("lat",String.valueOf(location1.getLatitude()));
-                            intent.putExtra("lng",String.valueOf(location1.getLongitude()));
-                            startActivity(intent);
-                            providerClient.removeLocationUpdates(this);
-                        }else {
-                            Toast.makeText(context, "No location found", Toast.LENGTH_SHORT).show();
-                            providerClient.removeLocationUpdates(this);
-                        }
-                    }
-                }, Looper.myLooper());
+                        new LocationCallback() {
+                            @Override
+                            public void onLocationResult(LocationResult locationResult) {
+                                super.onLocationResult(locationResult);
+                                Location location1 = locationResult.getLastLocation();
+                                if (location1 != null) {
+                                    Intent intent = new Intent(requireContext(), QrActivity.class);
+                                    intent.putExtra("lat", String.valueOf(location1.getLatitude()));
+                                    intent.putExtra("lng", String.valueOf(location1.getLongitude()));
+                                    startActivity(intent);
+                                    providerClient.removeLocationUpdates(this);
+                                } else {
+                                    Toast.makeText(context, "No location found", Toast.LENGTH_SHORT).show();
+                                    providerClient.removeLocationUpdates(this);
+                                }
+                            }
+                        }, Looper.myLooper());
             }
         });
     }

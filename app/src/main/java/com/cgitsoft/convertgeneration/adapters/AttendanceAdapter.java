@@ -7,11 +7,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.cgitsoft.convertgeneration.AttendanceModel.Details;
 import com.cgitsoft.convertgeneration.R;
+import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.models.attendance.AttendanceDetail;
 
 import java.util.ArrayList;
@@ -50,10 +52,16 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             holder.outTime.setText(detail.getOut_time());
             holder.att_date.setText(detail.getAtt_date());
             holder.description.setText(detail.getDescription());
-            holder.emp_id.setText(detail.getEmp_id());
-            holder.emp_name.setText(detail.getUser_fullname());
-            holder.emp_desi.setText(detail.getDesignation());
-            Glide.with(context).load(IMAGE_URL+detail.getUser_pic()).placeholder(R.drawable.no_image).into(holder.profileImage);
+
+            if (Utils.isAdmin(context)){
+                holder.profileImage.setVisibility(View.VISIBLE);
+                holder.foradmin.setVisibility(View.VISIBLE);
+                holder.emp_id.setText(detail.getEmp_id());
+                holder.emp_name.setText(detail.getUser_fullname());
+                holder.emp_desi.setText(detail.getDesignation());
+                Glide.with(context).load(IMAGE_URL+detail.getUser_pic()).placeholder(R.drawable.no_image).into(holder.profileImage);
+            }
+
         }
     }
 
@@ -65,6 +73,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView emp_id,emp_name,emp_desi,att_sts,inTime,outTime,att_date,description;
         CircleImageView profileImage;
+        ConstraintLayout foradmin;
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             emp_id = itemView.findViewById(R.id.txt_emp_id);
@@ -76,6 +85,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             emp_name = itemView.findViewById(R.id.txt_emp_name);
             emp_desi = itemView.findViewById(R.id.txt_emp_designation);
             profileImage = itemView.findViewById(R.id.profileImage);
+            foradmin=itemView.findViewById(R.id.containerForadmin);
         }
     }
 }

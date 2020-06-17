@@ -3,6 +3,7 @@ package com.cgitsoft.convertgeneration.models;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -12,6 +13,7 @@ import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -90,7 +92,35 @@ public class Utils {
         new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(Message)
-                .setPositiveButton("OK",((dialog, which) -> ((Activity)context).finish())).show().setCancelable(false);
+                .setPositiveButton("OK", (dialogInterface, i) ->  {
+                        dialogInterface.dismiss();
+                }).show();
+
+    }
+
+    public static void setConnected(Context context,boolean isConnected){
+        SharedPreferences preferences = context.getApplicationContext().getSharedPreferences("isConnected",0);
+        Editor editor = preferences.edit();
+        editor.putBoolean("connection",isConnected);
+        editor.apply();
+    }
+
+    public static boolean isConnected(Context context){
+        SharedPreferences preferences = context.getApplicationContext().getSharedPreferences("isConnected",0);
+        return preferences.getBoolean("connection",true);
+    }
+
+    public static void setDenied(Context context,boolean isDenied){
+        SharedPreferences preferences = context.getApplicationContext().getSharedPreferences("isDenied",0);
+        Editor editor = preferences.edit();
+        editor.putBoolean("Deny",isDenied);
+        editor.apply();
+    }
+
+    public static boolean isDenied(Context context){
+        SharedPreferences preferences = context.getApplicationContext().getSharedPreferences("isDenied",0);
+        boolean check = preferences.getBoolean("Deny",false);
+        return check;
     }
 
 }

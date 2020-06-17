@@ -16,6 +16,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.androidstudy.networkmanager.Monitor;
+import com.androidstudy.networkmanager.Tovuti;
 import com.cgitsoft.convertgeneration.AttendanceModel.Details;
 import com.cgitsoft.convertgeneration.R;
 import com.cgitsoft.convertgeneration.adapters.AttendanceAdapter;
@@ -29,6 +31,10 @@ import java.util.Locale;
 
 public class AttendanceDetailActivity extends AppCompatActivity {
 
+
+    public static String title= "Internet Connection";
+    public static String ON_message= "Internet Connected!!!";
+    public static String OFF_message= "Not Connected!!!";
     private final static String TAG = AttendanceDetailActivity.class.getSimpleName();
     private ArrayList<Details> list;
     private AttendanceAdapter adapter;
@@ -37,6 +43,7 @@ public class AttendanceDetailActivity extends AppCompatActivity {
     private AttendanceViewModel viewModel;
     String User_Id,from,to;
     RecyclerView recyclerView;
+    boolean isConnect=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,11 +89,17 @@ public class AttendanceDetailActivity extends AppCompatActivity {
             return;
         }
 
-        if (Utils.isAdmin(this)){
-            viewModel.getAdminDataByRange(progressBar,from,to,User_Id);
+        if (Utils.isConnected(this)){
+            if (Utils.isAdmin(this)){
+                viewModel.getAdminDataByRange(progressBar,from,to,User_Id);
+            }else {
+                viewModel.getEmployeeDataByRange(progressBar,from,to,User_Id);
+            }
         }else {
-            viewModel.getEmployeeDataByRange(progressBar,from,to,User_Id);
+            Utils.showAlertDialog(this,title,OFF_message);
         }
+
+
 
     }
 
@@ -125,5 +138,13 @@ public class AttendanceDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!Utils.isConnected(this)){
+            Utils.showAlertDialog(this,title,OFF_message);
+        }
     }
 }

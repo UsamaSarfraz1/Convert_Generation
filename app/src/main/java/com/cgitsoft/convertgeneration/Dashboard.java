@@ -1,13 +1,23 @@
 package com.cgitsoft.convertgeneration;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.androidstudy.networkmanager.Monitor;
 import com.androidstudy.networkmanager.Tovuti;
+import com.bumptech.glide.Glide;
 import com.cgitsoft.convertgeneration.AttendanceModel.Details;
 import com.cgitsoft.convertgeneration.AttendanceModel.Root;
 import com.cgitsoft.convertgeneration.activities.AttendanceDetailActivity;
 import com.cgitsoft.convertgeneration.activities.LoginActivity;
+import com.cgitsoft.convertgeneration.activities.ProfileActivity;
 import com.cgitsoft.convertgeneration.activities.ResetPasswordActivity;
 import com.cgitsoft.convertgeneration.dialogs.FormatSelectorDialogFragment;
 import com.cgitsoft.convertgeneration.dialogs.LogoutDialog;
@@ -16,9 +26,11 @@ import com.cgitsoft.convertgeneration.models.SharedPref;
 import com.cgitsoft.convertgeneration.models.Utills;
 import com.cgitsoft.convertgeneration.models.Utils;
 import com.cgitsoft.convertgeneration.models.login.LoginResponse;
+import com.cgitsoft.convertgeneration.models.login.UserDetail;
 import com.cgitsoft.convertgeneration.retrofit.CGITAPIs;
 import com.cgitsoft.convertgeneration.retrofit.RetrofitService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 import android.util.Log;
@@ -33,6 +45,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.navigation.NavigationView;
+import com.onesignal.OneSignal;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -40,8 +53,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,8 +67,12 @@ public class Dashboard extends AppCompatActivity {
     DrawerLayout drawer;
     private AppBarConfiguration mAppBarConfiguration;
     public static Menu mymenu;
-
-
+    public static String title= "Internet Connection";
+    public static String ON_message= "Internet Connected!!!";
+    public static String OFF_message= "Not Connected!!!";
+    View navigationHeaderView;
+    CircleImageView profileImage;
+    TextView userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +86,9 @@ public class Dashboard extends AppCompatActivity {
         drawer = findViewById(R.id.drawer_layout);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
-
-        //check internet connectivity
-        Tovuti.from(this).monitor(new Monitor.ConnectivityListener(){
-            @Override
-            public void onConnectivityChanged(int connectionType, boolean isConnected, boolean isFast){
-            }
-        });
+        navigationHeaderView =navigationView.getHeaderView(0);
+        userName=navigationHeaderView.findViewById(R.id.userNameLoggedin);
+        profileImage=navigationHeaderView.findViewById(R.id.profileImage);
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -86,6 +101,13 @@ public class Dashboard extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
 
 
+        // OneSignal Initialization
+        OneSignal.startInit(this)
+                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                .unsubscribeWhenNotificationsAreDisabled(true)
+                .init();
+
+        updateDrawerHeaderData();
         }
 
 
@@ -130,5 +152,12 @@ public class Dashboard extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+    }
+    public void updateDrawerHeaderData(){
+        UserDetail userDetail=Utills.getProfileData(this);
+        String Name=userDetail.getUser_fullname();
+        String imageUri=userDetail.getUser_pic();
+        userName.setText(Name);
+        Glide.with(this).load(ProfileActivity.IMAGE_URL+imageUri).placeholder(R.drawable.no_image).into(profileImage);
     }
 }
